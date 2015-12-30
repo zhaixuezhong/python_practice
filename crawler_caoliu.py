@@ -32,6 +32,10 @@ class CaoLiu:
     def getPage(self, i):
         try:
             url = 'http://t66y.com/thread0806.php?fid=22&search=&page=' + str(i)
+            proxy_support = urllib.request.ProxyHandler({'http': 'http://127.0.0.1:8087'})
+            opener = urllib.request.build_opener(proxy_support)
+            urllib.request.install_opener(opener)
+
             #构建请求的request
             request = urllib.request.Request(url, headers=self.headers)
 
@@ -41,7 +45,7 @@ class CaoLiu:
 
             # response = urllib.urlopen(request)
             #将页面转化为UTF-8编码
-            pageCode = response.decode('utf-8')
+            pageCode = response.decode('gbk')
             return pageCode
 
         except urllib.error.URLError as e:
@@ -56,7 +60,6 @@ class CaoLiu:
             page = self.getPage(i)
             soup = BeautifulSoup(page, from_encoding="gb18030")  #解决BeautifulSoup中文乱码问题
             print("reading page " + str(i))
-            # counts = soup.find_all("td", class_="tal f10 y-style")
             counts = soup.find_all("td", class_="tal f10 y-style")
 
             for count in counts:
