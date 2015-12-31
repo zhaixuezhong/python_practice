@@ -60,7 +60,8 @@ class CaoLiu:
             page = self.getPage(i)
             soup = BeautifulSoup(page, from_encoding="gb18030")  #解决BeautifulSoup中文乱码问题
             print("reading page " + str(i))
-            counts = soup.find_all("td", class_="tal f10 y-style")
+            # counts = soup.find_all("td", class_="tal f10 y-style")
+            counts = soup.find_all("td", { "class" : "tal f10 y-style" })
 
             for count in counts:
                 if int(count.string) > 15:  #选择想要的点击率
