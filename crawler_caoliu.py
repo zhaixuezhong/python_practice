@@ -1,14 +1,12 @@
-import urllib
-
 __author__ = 'zxz'
 
 # -- coding: utf-8 --
+# coding=utf-8
 
 import urllib3
-import urllib.request
-import urllib.error
 import sys
 import importlib
+import brower_request
 from bs4 import BeautifulSoup
 
 class CaoLiu:
@@ -30,41 +28,22 @@ class CaoLiu:
 
     #传入某一页的索引获得页面代码
     def getPage(self, i):
-        try:
-            url = 'http://t66y.com/thread0806.php?fid=22&search=&page=' + str(i)
-            proxy_support = urllib.request.ProxyHandler({'http': 'http://127.0.0.1:8087'})
-            opener = urllib.request.build_opener(proxy_support)
-            urllib.request.install_opener(opener)
-
-            #构建请求的request
-            request = urllib.request.Request(url, headers=self.headers)
-
-            with urllib.request.urlopen(request) as url:
-                #利用urlopen获取页面代码
-                response = url.read()
-
-            # response = urllib.urlopen(request)
-            #将页面转化为UTF-8编码
-            pageCode = response.decode('gbk')
-            return pageCode
-
-        except urllib.error.URLError as e:
-            if hasattr(e, "reason"):
-                print(u"连接caoLiu失败,错误原因", e.reason)
-                return None
+        url = 'http://t66y.com/thread0806.php?fid=22&search=&page=' + str(i)
+        result =  brower_request.get_html_with_proxy(url)
+        return result
 
 
     def start(self):
         for i in range(1, 100):  # 设置始末页码
             http = urllib3.PoolManager()
             page = self.getPage(i)
-            soup = BeautifulSoup(page, from_encoding="gb18030")  #解决BeautifulSoup中文乱码问题
+            soup = BeautifulSoup(page, from_encoding="utf8")  #解决BeautifulSoup中文乱码问题
             print("reading page " + str(i))
             # counts = soup.find_all("td", class_="tal f10 y-style")
             counts = soup.find_all("td", { "class" : "tal f10 y-style" })
 
             for count in counts:
-                if int(count.string) > 15:  #选择想要的点击率
+                if int(count.string) > 5:  #选择想要的点击率
                     videoContainer = count.previous_sibling.previous_sibling.previous_sibling.previous_sibling
                     video = videoContainer.find("h3")
                     print("Downloading link " + str(self.j))
@@ -72,14 +51,11 @@ class CaoLiu:
                     line2 = self.BaseUrl + video.a.get('href')
                     line3 = "view **" + count.string + "** "
                     print(line1)
-                    f = open('cao.md', 'a')
+                    f = open('cao.txt', 'a')
                     f.write(
                         "\n" + "###" + " " + line1 + "\n" + "<" + line2 + ">" + "\n" + line3 + "  " + "page" + str(i) + "\n")
                     f.close()
                     self.j += 1
-
-
-
 
 
 spider = CaoLiu()
