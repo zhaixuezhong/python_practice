@@ -9,7 +9,7 @@ import importlib
 import brower_request
 from bs4 import BeautifulSoup
 
-class CaoLiu:
+class LiuErLing:
     importlib.reload(sys)
     print(sys.getdefaultencoding())  # 解决写入文件乱码问题
 
@@ -28,8 +28,9 @@ class CaoLiu:
 
     #传入某一页的索引获得页面代码
     def getPage(self, i):
-        url = 'http://t66y.com/thread0806.php?fid=22&search=&page=' + str(i)
-        result =  brower_request.get_html_with_proxy(url,'gbk')
+        # url = 'http://620lu.com/vod-type-id-1-pg-'+ str(i) + '.html'
+        url = 'http://620lu.com/vod-detail-id-35063.html'
+        result =  brower_request.get_html_with_proxy(url,'utf8')
         return result
 
 
@@ -40,7 +41,7 @@ class CaoLiu:
             soup = BeautifulSoup(page, from_encoding="utf8")  #解决BeautifulSoup中文乱码问题
             print("reading page " + str(i))
             # counts = soup.find_all("td", class_="tal f10 y-style")
-            counts = soup.find_all("td", { "class" : "tal f10 y-style" })
+            counts = soup.find_all("div", { "class" : "citem film-box" })
 
             for count in counts:
                 if int(count.string) > 5:  #选择想要的点击率
@@ -58,5 +59,5 @@ class CaoLiu:
                     self.j += 1
 
 
-spider = CaoLiu()
-spider.start()
+_spider = LiuErLing()
+_spider.start()

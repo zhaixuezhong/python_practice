@@ -4,62 +4,64 @@ import urllib.request
 import urllib.error
 import re
 
-#糗事百科爬虫类
+# 糗事百科爬虫类
 class QSBK:
-
-    #初始化方法，定义一些变量
+    # 初始化方法，定义一些变量
     def __init__(self):
         self.pageIndex = 1
         self.user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
         #初始化headers
-        self.headers = { 'User-Agent' : self.user_agent }
+        self.headers = {'User-Agent': self.user_agent}
         #存放段子的变量，每一个元素是每一页的段子们
         self.stories = []
         #存放程序是否继续运行的变量
         self.enable = False
-    #传入某一页的索引获得页面代码
-    def getPage(self,pageIndex):
+
+    # 传入某一页的索引获得页面代码
+    def getPage(self, pageIndex):
         try:
             url = 'http://www.qiushibaike.com/hot/page/' + str(pageIndex)
-            #构建请求的request
-            request = urllib.request.Request(url,headers = self.headers)
+            # 构建请求的request
+            request = urllib.request.Request(url, headers=self.headers)
 
             with urllib.request.urlopen(request) as url:
-                #利用urlopen获取页面代码
+                # 利用urlopen获取页面代码
                 response = url.read()
 
             # response = urllib.urlopen(request)
-            #将页面转化为UTF-8编码
+            # 将页面转化为UTF-8编码
             pageCode = response.decode('utf-8')
             return pageCode
 
         except urllib.error.URLError as e:
-            if hasattr(e,"reason"):
-                print(u"连接糗事百科失败,错误原因",e.reason)
+            if hasattr(e, "reason"):
+                print(u"连接糗事百科失败,错误原因", e.reason)
                 return None
 
 
-    #传入某一页代码，返回本页不带图片的段子列表
-    def getPageItems(self,pageIndex):
+# 传入某一页代码，返回本页不带图片的段子列表
+    def getPageItems(self, pageIndex):
         pageCode = self.getPage(pageIndex)
         if not pageCode:
             print("页面加载失败....")
             return None
-        pattern = re.compile('<div.*?author clearfix">.*?<a.*?<h2>(.*?)</h2>.*?content">(.*?)<!--(.*?)-->.*?</div>(.*?)<div class="stats.*?class="number hidden">(.*?)</span>',re.S)
+        pattern = re.compile(
+            '<div.*?author clearfix">.*?<a.*?<h2>(.*?)</h2>.*?content">(.*?)<!--(.*?)-->.*?</div>(.*?)<div class="stats.*?class="number hidden">(.*?)</span>',
+            re.S)
 
-        items = re.findall(pattern,pageCode)
+        items = re.findall(pattern, pageCode)
         #用来存储每页的段子们
         pageStories = []
         #遍历正则表达式匹配的信息
         for item in items:
             #是否含有图片
-            haveImg = re.search("img",item[3])
+            haveImg = re.search("img", item[3])
             #如果不含有图片，把它加入list中
             if not haveImg:
                 replaceBR = re.compile('<br/>')
-                text = re.sub(replaceBR,"\n",item[1])
+                text = re.sub(replaceBR, "\n", item[1])
                 #item[0]是一个段子的发布者，item[1]是内容，item[2]是发布时间,item[4]是点赞数
-                pageStories.append([item[0].strip(),text.strip(),item[2].strip(),item[4].strip()])
+                pageStories.append([item[0].strip(), text.strip(), item[2].strip(), item[4].strip()])
         return pageStories
 
     # 加载并提取页面的内容，加入到列表中
@@ -76,7 +78,7 @@ class QSBK:
                     self.pageIndex += 1
 
     #调用该方法，每次敲回车打印输出一个段子
-    def getOneStory(self,pageStories,page):
+    def getOneStory(self, pageStories, page):
         #遍历一页的段子
         for story in pageStories:
             #等待用户输入
@@ -87,7 +89,7 @@ class QSBK:
             if yourInput == "Q":
                 self.enable = False
                 return
-            print(u"第%d页\t发布人:%s\t发布时间:%s\t赞:%s\n%s" %(page,story[0],story[2],story[3],story[1]))
+            print(u"第%d页\t发布人:%s\t发布时间:%s\t赞:%s\n%s" % (page, story[0], story[2], story[3], story[1]))
 
     #开始方法
     def start(self):
@@ -99,15 +101,15 @@ class QSBK:
         #局部变量，控制当前读到了第几页
         nowPage = 0
         while self.enable:
-            if len(self.stories)>0:
-                #从全局list中获取一页的段子
+            if len(self.stories) > 0:
+                # 从全局list中获取一页的段子
                 pageStories = self.stories[0]
-                #当前读到的页数加一
+                # 当前读到的页数加一
                 nowPage += 1
                 #将全局list中第一个元素删除，因为已经取出
                 del self.stories[0]
-                #输出该页的段子
-                self.getOneStory(pageStories,nowPage)
+                # 输出该页的段子
+                self.getOneStory(pageStories, nowPage)
 
 
 spider = QSBK()

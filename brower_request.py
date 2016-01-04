@@ -18,7 +18,7 @@ def get_html(url):
     return html_string
 
 
-def get_html_with_proxy(url_address):
+def get_html_with_proxy(url_address,decode_str):
     cj = http.cookiejar.CookieJar()
 
     try:
@@ -36,7 +36,7 @@ def get_html_with_proxy(url_address):
             #利用urlopen获取页面代码
             response = url.read()
         #将页面转化为UTF-8编码
-        page_code = response.decode('gbk')
+        page_code = response.decode(decode_str)
         page_code = page_code.encode('utf8')
         return page_code
 
